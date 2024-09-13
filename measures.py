@@ -102,6 +102,9 @@ def evaluate_factors(df:pl.DataFrame,factor_col:str,return_col:str,period:int=5)
     if np.nanmean(ic_list)<0:
         df=df.with_columns(pl.col(factor_col)*(-1))
         factor_return_list=[-x for x in factor_return_list]
+        dire='neg'
+    else:
+        dire='pos'
     
     icir=np.round(np.nanmean(ic_list)/np.nanstd(ic_list),3)
     win_rate=np.round(np.sum(np.sign(factor_return_list))/2/len(factor_return_list)+0.5,3)
@@ -111,8 +114,9 @@ def evaluate_factors(df:pl.DataFrame,factor_col:str,return_col:str,period:int=5)
     plot_factor_performance(pl.DataFrame({'date':df['date'].unique()[:-1],'return':factor_return_list}),factor_col)
 
     return {
-        "IC":np.round(np.mean(ic_list),3),
+        "IC":np.round(np.nanmean(ic_list),3),
         "ICIR":icir,
+        "Direction":dire,
         "Factor Long-Short Return":np.round(np.mean(factor_return_list),3),
         "Win Rate":win_rate,
         'Turnover Rate':turnover_rate,
